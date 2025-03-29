@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THAA Boston Dragonboat Team Training Sign-Up</title>
+    <style>
+        /* CSS styling */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        p, label {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        input[type="text"], input[type="date"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .signup-list {
+            margin-top: 20px;
+            list-style: none;
+            padding: 0;
+        }
+        .signup-list li {
+            padding: 8px;
+            background-color: #e0f7fa;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+        .signup-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    margin-bottom: 5px;
+    border-radius: 4px;
+}
+
+.signup-item span {
+    flex-grow: 1; /* Allow name to take up available space */
+}
+
+.remove-button {
+    font-size: 12px;
+    padding: 3px 6px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    width: auto;
+    max-width: 70px; /* Fixed width for consistency */
+    text-align: center;
+}
+
+.remove-button:hover {
+    background-color: #0056b3;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Body Combat Sign-Up</h1>
+        
+        <!-- Date, Time, and Location -->
+        <p><strong>Date:</strong> <span id="eventDate"></span></p>
+        <p><strong>Time:</strong> 3:00 - 5:00pm</p>
+        <p><strong>Location:</strong> Graduate Tower at Site 4, Building E37, E39, 45 Hayward St, Cambridge, MA 02142</p>
+        
+        <p id="slots">Available Slots: <span id="remainingSlots"></span></p>
+        
+        <!-- Sign-up form -->
+        <input type="text" id="name" placeholder="Enter your name" required>
+
+        <select id="hand" required>
+          <option value="">Select your convenient side/hand</option>
+          <option value="Left">Left</option>
+          <option value="Right">Right</option>
+          <option value="Both">Both</option>
+        </select>
+
+        <button onclick="signUp()" id="signUpBtn">Sign Up</button>
+        
+        <!-- Waiver 
+        <div id="waiver">
+            <p><strong>By signing up, I agree to the following terms:</strong></p>
+            <p>1. I, the undersigned, acknowledge and understand that participation in this voluntary workout activity involves physical exertion and carries potential risks, including injury or other health-related issues. I voluntarily assume all risks associated with my participation in this activity, including any harm or injury that may occur.</p>
+            <p>2. I hereby release, waive, and discharge all claims or liabilities against any other participants (including anyone who voluntarily coordinates the activity) in this activity. I agree not to hold any of the above persons, participants, or affiliated organizations responsible for any injury, loss, or damage that may occur during or as a result of my participation in this activity.</p>
+        </div>-->
+        
+        <!-- List of sign-ups -->
+        <ul class="signup-list" id="signupList">
+            <li id="loadingMsg">Loading sign-ups...</li>
+        </ul>
+    </div>
+
+    <script src="script.js" async></script>
+</body>
+</html>
