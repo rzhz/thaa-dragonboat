@@ -36,11 +36,10 @@ async function signUp() {
     }
 
     const name = document.getElementById("name").value.trim();
-    if (!name) return;
+    const hand = document.getElementById("hand").value;
 
-    const currentUserName = localStorage.getItem(`currentUserName_${eventDate}`);
-    if (name === currentUserName) {
-        alert("You have already signed up.");
+    if (!name || !hand) {
+        alert("Please enter your name and select your dominant hand.");
         return;
     }
 
@@ -49,14 +48,13 @@ async function signUp() {
     localStorage.setItem(`currentUserName_${eventDate}`, name);
 
     try {
-        const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&userId=${userId}&date=${eventDate}`);
+        const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&hand=${hand}&userId=${userId}&date=${eventDate}`);
         const signups = await response.json();
         updateDisplay(signups);
     } catch (error) {
         console.error('Error signing up:', error);
     }
 }
-
 
 // Remove a signup
 async function removeSignup(name) {
@@ -88,12 +86,12 @@ function updateDisplay(signups) {
 
     const currentUserName = localStorage.getItem(`currentUserName_${eventDate}`);
 
-    signups.forEach((name) => {
+    signups.forEach(({ name, hand }) => {
         const listItem = document.createElement("li");
         listItem.classList.add("signup-item");
 
         const nameSpan = document.createElement("span");
-        nameSpan.textContent = name;
+        nameSpan.textContent = `${name} (${hand})`;
         listItem.appendChild(nameSpan);
 
         if (name === currentUserName) {
