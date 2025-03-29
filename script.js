@@ -2,10 +2,10 @@
 // Everytime the eventDate is updated, it creates a new sheet in the same Excel file.
 // --- Configuration & Event Details ---
 const apiUrl = 'https://script.google.com/macros/s/AKfycbzGKLQt1DMtwY-iQkKJmNcFRcf2Yon2X4W31Qonw4nOJfAmwf76tmVXhY05z10ngsTp/exec';
-const maxSlots = 46;
-const eventDate = '20250327';  // Must match the sheet name for the event
-const eventTime = '6-7am';
-const eventLocation = 'Charles River, Cambridge, MA';
+const maxSlots = 36;
+const eventDate = '20250330';  // Must match the sheet name for the event
+const eventTime = '3:30-5:00pm';
+const eventLocation = 'MIT E51 (Tang Center), Cambridge, MA (从停车场的角落的门进去更方便被队友看到给你开门）';
 
 // Set event details in the HTML
 const eventDateObj = new Date(
