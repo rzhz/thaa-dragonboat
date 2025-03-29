@@ -1,9 +1,9 @@
 // The maxSlots need to be updated to change the maximum number of sign-ups each time.
 // Everytime the eventDate is updated, it creates a new sheet in the same Excel file.
-// --- Configuration and Event Details ---
+// --- Configuration & Event Details ---
 const apiUrl = 'https://script.google.com/macros/s/AKfycbzGKLQt1DMtwY-iQkKJmNcFRcf2Yon2X4W31Qonw4nOJfAmwf76tmVXhY05z10ngsTp/exec';
 const maxSlots = 46;
-const eventDate = '20250327';  // This must match the sheet name for the event
+const eventDate = '20250327';  // Must match the sheet name for the event
 const eventTime = '6-7am';
 const eventLocation = 'Charles River, Cambridge, MA';
 
@@ -19,7 +19,7 @@ document.getElementById('eventDate').textContent = formattedEventDate;
 document.getElementById('eventTime').textContent = eventTime;
 document.getElementById('eventLocation').textContent = eventLocation;
 
-// --- Local Storage Helper Functions ---
+// --- Local Storage Helpers ---
 function getMySignups() {
   const key = `mySignups_${eventDate}`;
   const stored = localStorage.getItem(key);
@@ -59,7 +59,7 @@ async function signUp() {
     return;
   }
   
-  // Check device's list for duplicate name
+  // Check for duplicates on this device
   let mySignups = getMySignups();
   if (mySignups.includes(name)) {
     alert("You have already signed up with this name on this device.");
@@ -69,7 +69,7 @@ async function signUp() {
   try {
     const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&hand=${encodeURIComponent(hand)}&date=${eventDate}`);
     const signups = await response.json();
-    // Add the name to our device's list
+    // Add the new name to our device's list
     mySignups.push(name);
     saveMySignups(mySignups);
     updateDisplay(signups);
@@ -116,7 +116,7 @@ function updateDisplay(signups) {
     nameSpan.textContent = `${name} (${hand})`;
     listItem.appendChild(nameSpan);
     
-    // Only show Remove button if this device added the name
+    // Show the Remove button only for names added from this device
     if (mySignups.includes(name)) {
       const removeButton = document.createElement("button");
       removeButton.textContent = "Remove";
@@ -128,7 +128,7 @@ function updateDisplay(signups) {
     signupList.appendChild(listItem);
   });
   
-  // Disable the sign-up button if there are no available slots
+  // Disable sign-up button if no slots remain
   document.getElementById("signUpBtn").disabled = remainingSlots <= 0;
   document.getElementById("loadingMsg")?.remove();
   document.getElementById("name").value = "";
@@ -151,6 +151,7 @@ window.onload = () => {
   fetchSignups();
   validateFormInputs();
 };
+
 
 
 
