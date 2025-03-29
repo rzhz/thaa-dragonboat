@@ -97,13 +97,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>THAA Boston Dragonboat Team Training Sign-Up</h1>
+        <h1>清华龙舟队2025室内训练 THAA Boston Dragonboat Team Training Sign-Up</h1>
         
         <!-- Date, Time, and Location -->
         <p><strong>Date:</strong> <span id="eventDate"></span></p>
         <p><strong>Time:</strong> <span id="eventTime"></span></p>
         <p><strong>Location:</strong> <span id="eventLocation"></span></p> 
         <p id="slots">Available Slots: <span id="remainingSlots"></span></p>
+
+        <!-- Intro -->
+        <div id="waiver">
+            <p>目的：体能训练+龙舟机1v1动作指导</p>
+            <p>我们训练的形式为：每人按报名顺序参加5分钟左右的1v1龙舟机训练，等待或已经完成训练的人一起进行体能训练。龙舟机1v1 session一共36个名额，之前参与过龙舟机训练的也欢迎接龙，一起参加体能训练。请大家提前5-10分钟到场，可以换衣服、热身、做准备。</p>
+        </div>
         
         <!-- Sign-up form -->
         <input type="text" id="name" placeholder="Enter your name" required>
@@ -117,12 +123,13 @@
 
         <button onclick="signUp()" id="signUpBtn">Sign Up</button>
         
-        <!-- Waiver 
+        <!-- Waiver-->
         <div id="waiver">
-            <p><strong>By signing up, I agree to the following terms:</strong></p>
-            <p>1. I, the undersigned, acknowledge and understand that participation in this voluntary workout activity involves physical exertion and carries potential risks, including injury or other health-related issues. I voluntarily assume all risks associated with my participation in this activity, including any harm or injury that may occur.</p>
-            <p>2. I hereby release, waive, and discharge all claims or liabilities against any other participants (including anyone who voluntarily coordinates the activity) in this activity. I agree not to hold any of the above persons, participants, or affiliated organizations responsible for any injury, loss, or damage that may occur during or as a result of my participation in this activity.</p>
-        </div>-->
+            <p>⛳备注： 体能训练比较暴汗，记得带上充足的水。有瑜伽垫或者护膝的小伙伴欢迎带上。</p>
+            <p>🚗停车：E51旁边有一些街趴（隔壁停车场理论上不能停但周末没人管）</p>
+            <p>🧥服装：适宜运动和拉伸的轻便服装+保暖外套 </p>
+            <p>现场： 当天到达后想参加龙舟机1v1训练的请在白板上写上自己的名字</p>
+        </div>
         
         <!-- List of sign-ups -->
         <ul class="signup-list" id="signupList">
