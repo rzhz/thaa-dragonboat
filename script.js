@@ -3,6 +3,8 @@
 const apiUrl = 'https://script.google.com/macros/s/AKfycbzGKLQt1DMtwY-iQkKJmNcFRcf2Yon2X4W31Qonw4nOJfAmwf76tmVXhY05z10ngsTp/exec'; // Google Apps Script URL
 const maxSlots = 46;
 const eventDate = '20250327';
+const eventTime = '6-7am';
+const eventLocation = 'Charles River, Cambridge, MA';
 
 // Convert eventDate (YYYYMMDD) to a readable format and display it
 const eventDateObj = new Date(
@@ -13,6 +15,8 @@ const eventDateObj = new Date(
 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const formattedEventDate = eventDateObj.toLocaleDateString(undefined, options);
 document.getElementById('eventDate').textContent = formattedEventDate;
+document.getElementById('eventTime').textContent = eventTime;
+document.getElementById('eventLocation').textContent = eventLocation;
 
 let signupsLoaded = false;
 
