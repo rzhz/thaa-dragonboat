@@ -3,10 +3,11 @@
 // --- Configuration and Global Variables ---
 const apiUrl = 'https://script.google.com/macros/s/AKfycbzGKLQt1DMtwY-iQkKJmNcFRcf2Yon2X4W31Qonw4nOJfAmwf76tmVXhY05z10ngsTp/exec';
 const maxSlots = 46;
-const eventDate = '20250327';
+const eventDate = '20250327';  // Must match the sheet name for the event
 const eventTime = '6-7am';
 const eventLocation = 'Charles River, Cambridge, MA';
 
+// --- Set Event Details in HTML ---
 const eventDateObj = new Date(
     parseInt(eventDate.slice(0, 4)),
     parseInt(eventDate.slice(4, 6)) - 1,
@@ -18,9 +19,22 @@ document.getElementById('eventDate').textContent = formattedEventDate;
 document.getElementById('eventTime').textContent = eventTime;
 document.getElementById('eventLocation').textContent = eventLocation;
 
+// --- Helper Functions for Local Device Storage ---
+function getMySignups() {
+    const key = `mySignups_${eventDate}`;
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : [];
+}
+
+function saveMySignups(signups) {
+    const key = `mySignups_${eventDate}`;
+    localStorage.setItem(key, JSON.stringify(signups));
+}
+
+// --- Global State ---
 let signupsLoaded = false;
 
-// Fetch signups
+// --- Fetch Signups ---
 async function fetchSignups() {
     try {
         const response = await fetch(`${apiUrl}?action=get&date=${eventDate}`);
@@ -32,81 +46,97 @@ async function fetchSignups() {
     }
 }
 
-// Add a new signup
+// --- Add a New Signup ---
 async function signUp() {
     if (!signupsLoaded) {
         alert("Please wait for the sign-up list to load.");
         return;
     }
+    
     const name = document.getElementById("name").value.trim();
     const hand = document.getElementById("hand").value;
     if (!name || !hand) {
         alert("Please enter your name and select your dominant hand.");
         return;
     }
-    const userId = Date.now() + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem(`currentUserId_${eventDate}`, userId);
-    localStorage.setItem(`currentUserName_${eventDate}`, name);
-
+    
+    // Check for duplicate on this device
+    let mySignups = getMySignups();
+    if (mySignups.includes(name)) {
+        alert("You have already signed up with this name on this device.");
+        return;
+    }
+    
     try {
-        const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&hand=${encodeURIComponent(hand)}&userId=${userId}&date=${eventDate}`);
+        const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&hand=${encodeURIComponent(hand)}&date=${eventDate}`);
         const signups = await response.json();
+        // Add name to local device list
+        mySignups.push(name);
+        saveMySignups(mySignups);
         updateDisplay(signups);
     } catch (error) {
         console.error('Error signing up:', error);
     }
 }
 
-// Remove a signup using both name and userId
+// --- Remove a Signup ---
 async function removeSignup(name) {
-    const userId = localStorage.getItem(`currentUserId_${eventDate}`);
-    const currentUserName = localStorage.getItem(`currentUserName_${eventDate}`);
-    if (!userId || name !== currentUserName) {
-        alert("You can't remove this sign-up as it's not associated with this device.");
+    let mySignups = getMySignups();
+    if (!mySignups.includes(name)) {
+        alert("You can't remove this sign-up because it's not associated with this device.");
         return;
     }
+    
     try {
-        const response = await fetch(`${apiUrl}?action=remove&name=${encodeURIComponent(name)}&userId=${userId}&date=${eventDate}`);
+        const response = await fetch(`${apiUrl}?action=remove&name=${encodeURIComponent(name)}&date=${eventDate}`);
         const signups = await response.json();
+        // Remove the name from our local list
+        mySignups = mySignups.filter(n => n !== name);
+        saveMySignups(mySignups);
         updateDisplay(signups);
     } catch (error) {
         console.error('Error removing signup:', error);
     }
 }
 
-// Update display
+// --- Update the Display ---
 function updateDisplay(signups) {
     signupsLoaded = true;
+    
     const remainingSlots = maxSlots - signups.length;
     document.getElementById("remainingSlots").textContent = remainingSlots;
     const signupList = document.getElementById("signupList");
     signupList.innerHTML = "";
-
-    const currentUserName = localStorage.getItem(`currentUserName_${eventDate}`);
-
+    
+    const mySignups = getMySignups();
+    
     signups.forEach(({ name, hand }) => {
         const listItem = document.createElement("li");
         listItem.classList.add("signup-item");
+        
         const nameSpan = document.createElement("span");
         nameSpan.textContent = `${name} (${hand})`;
         listItem.appendChild(nameSpan);
-
-        if (name === currentUserName) {
+        
+        // If this name is in the device's list, show Remove button
+        if (mySignups.includes(name)) {
             const removeButton = document.createElement("button");
             removeButton.textContent = "Remove";
             removeButton.classList.add("remove-button");
             removeButton.onclick = () => removeSignup(name);
             listItem.appendChild(removeButton);
         }
+        
         signupList.appendChild(listItem);
     });
-
+    
+    // Disable the sign-up button if no slots remain
     document.getElementById("signUpBtn").disabled = remainingSlots <= 0;
     document.getElementById("loadingMsg")?.remove();
     document.getElementById("name").value = "";
 }
 
-// Form validation (for button enable/disable)
+// --- Form Validation for Enabling/Disabling the Sign-Up Button ---
 function validateFormInputs() {
     const name = document.getElementById("name").value.trim();
     const hand = document.getElementById("hand").value;
@@ -118,9 +148,11 @@ function validateFormInputs() {
 document.getElementById("name").addEventListener("input", validateFormInputs);
 document.getElementById("hand").addEventListener("change", validateFormInputs);
 
+// --- Initialization ---
 window.onload = () => {
     fetchSignups();
     validateFormInputs();
 };
+
 
 
