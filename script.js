@@ -1,12 +1,12 @@
 // The maxSlots need to be updated to change the maximum number of sign-ups each time.
 // Everytime the eventDate is updated, it creates a new sheet in the same Excel file.
+// --- Configuration and Global Variables ---
 const apiUrl = 'https://script.google.com/macros/s/AKfycbzGKLQt1DMtwY-iQkKJmNcFRcf2Yon2X4W31Qonw4nOJfAmwf76tmVXhY05z10ngsTp/exec'; // Google Apps Script URL
 const maxSlots = 46;
-const eventDate = '20250327';
+const eventDate = '20250327'; // Make sure this matches the sheet name you want
 const eventTime = '6-7am';
 const eventLocation = 'Charles River, Cambridge, MA';
 
-// Convert eventDate (YYYYMMDD) to a readable format and display it
 const eventDateObj = new Date(
     parseInt(eventDate.slice(0, 4)),
     parseInt(eventDate.slice(4, 6)) - 1,
@@ -14,18 +14,22 @@ const eventDateObj = new Date(
 );
 const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
 const formattedEventDate = eventDateObj.toLocaleDateString(undefined, options);
+
+// Set the event details in the HTML
 document.getElementById('eventDate').textContent = formattedEventDate;
 document.getElementById('eventTime').textContent = eventTime;
 document.getElementById('eventLocation').textContent = eventLocation;
 
 let signupsLoaded = false;
 
+// --- Functions ---
+
 // Fetch current signups for the set date
 async function fetchSignups() {
     try {
         const response = await fetch(`${apiUrl}?action=get&date=${eventDate}`);
         const signups = await response.json();
-        console.log('Signups data:', signups); // Log the signups data to inspect
+        console.log('Signups data:', signups); // Debug log
         updateDisplay(signups);
     } catch (error) {
         console.error('Error fetching signups:', error);
@@ -41,13 +45,15 @@ async function signUp() {
 
     const name = document.getElementById("name").value.trim();
     const hand = document.getElementById("hand").value;
-
     if (!name || !hand) {
         alert("Please enter your name and select your dominant hand.");
         return;
     }
 
+    // Generate a unique userId
     const userId = Date.now() + Math.random().toString(36).substr(2, 9);
+
+    // Store current user's info using keys that include the event date
     localStorage.setItem(`currentUserId_${eventDate}`, userId);
     localStorage.setItem(`currentUserName_${eventDate}`, name);
 
@@ -60,10 +66,11 @@ async function signUp() {
     }
 }
 
-// Remove a signup
+// Remove a signup (with consistent localStorage keys)
 async function removeSignup(name) {
-    const userId = localStorage.getItem('currentUserId');
-    const currentUserName = localStorage.getItem('currentUserName');
+    // Retrieve current user's info using the same keys as used in signUp and updateDisplay
+    const userId = localStorage.getItem(`currentUserId_${eventDate}`);
+    const currentUserName = localStorage.getItem(`currentUserName_${eventDate}`);
 
     if (!userId || name !== currentUserName) {
         alert("You can't remove this sign-up as it's not associated with this device.");
@@ -88,6 +95,7 @@ function updateDisplay(signups) {
     const signupList = document.getElementById("signupList");
     signupList.innerHTML = "";
 
+    // Retrieve the current user's name for this event
     const currentUserName = localStorage.getItem(`currentUserName_${eventDate}`);
 
     signups.forEach(({ name, hand }) => {
@@ -98,6 +106,7 @@ function updateDisplay(signups) {
         nameSpan.textContent = `${name} (${hand})`;
         listItem.appendChild(nameSpan);
 
+        // Only show the Remove button for the current user's sign-up
         if (name === currentUserName) {
             const removeButton = document.createElement("button");
             removeButton.textContent = "Remove";
@@ -109,12 +118,29 @@ function updateDisplay(signups) {
         signupList.appendChild(listItem);
     });
 
-    // Enable button only if there are slots
+    // Enable the sign-up button only if there are available slots
     document.getElementById("signUpBtn").disabled = remainingSlots <= 0;
-    document.getElementById("loadingMsg")?.remove(); // Remove loading text
-
+    document.getElementById("loadingMsg")?.remove();
+    document.getElementById("name").value = "";
 }
 
+// --- Event Listeners for Form Validation ---
 
-// Initialize display on page load
-window.onload = fetchSignups;
+function validateFormInputs() {
+    const name = document.getElementById("name").value.trim();
+    const hand = document.getElementById("hand").value;
+    const signUpBtn = document.getElementById("signUpBtn");
+    const isValid = name !== "" && hand !== "";
+    signUpBtn.disabled = !isValid;
+    signUpBtn.style.backgroundColor = isValid ? "#4CAF50" : "#ccc";
+}
+
+document.getElementById("name").addEventListener("input", validateFormInputs);
+document.getElementById("hand").addEventListener("change", validateFormInputs);
+
+// --- Initialize on Page Load ---
+window.onload = () => {
+    fetchSignups();
+    validateFormInputs();
+};
+
