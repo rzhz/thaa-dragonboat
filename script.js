@@ -68,10 +68,9 @@ async function signUp() {
     alert("You have already signed up with this name on this device.");
     return;
   }
-
+  
   // Check training quota if training checkbox is checked
   const trainingChecked = document.getElementById("training").checked;
-  // currentTrainingCount is updated in updateDisplay based on backend data
   if (trainingChecked && currentTrainingCount >= trainingQuota) {
     alert("The quota for 1v1 training has been reached.");
     return;
@@ -80,7 +79,8 @@ async function signUp() {
   const training = trainingChecked ? "Yes" : "No";
   
   try {
-    const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&hand=${encodeURIComponent(hand)}&date=${eventDate}`);
+    // Include the training parameter in the URL
+    const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&hand=${encodeURIComponent(hand)}&training=${encodeURIComponent(training)}&date=${eventDate}`);
     const signups = await response.json();
     // If signup succeeds and training is selected, add to this device's local list
     if (training === "Yes") {
