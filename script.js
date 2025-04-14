@@ -6,7 +6,7 @@ const maxSlots = 40;
 const eventDate = '20250418';  // Must match the sheet name for the event
 const eventTime = '6:00-8:00pm';
 const trainingQuota = 8;
-const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210 (参考下图)';
+const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210 (参考下图dock)';
 //const eventLocation = 'MIT E51 (Tang Center), Cambridge, MA (从停车场的角落的门进去更方便被队友看到给你开门）';
 
 // Set event details in the HTML
