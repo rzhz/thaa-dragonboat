@@ -1,7 +1,7 @@
 // The maxSlots need to be updated to change the maximum number of sign-ups each time.
 // Everytime the eventDate is updated, it creates a new sheet in the same Excel file.
 // --- Configuration & Event Details ---
-const apiUrl = 'https://script.google.com/macros/s/AKfycbwE10Q29FFyMLue2ONnZ_uXihh2G7w58H4biq2pNUOekyEDPuE_7GnGCyI_3leEwF8/exec';
+const apiUrl = 'https://script.google.com/macros/s/AKfycbyLYPNnQbwUg7YPpJJgXG3Th2jFP2ocB_5Gekbe8aYEVwNSFls7cYEihC9jEk1_9trT/exec';
 const maxSlots = 40;
 const eventDate = '20250418';  // Must match the sheet name for the event
 const eventTime = '6:00-8:00pm';
