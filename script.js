@@ -107,6 +107,15 @@ function updateDisplay(signups) {
   document.getElementById("remainingSlots").textContent = remainingSlots;
   const signupList = document.getElementById("signupList");
   signupList.innerHTML = "";
+
+  // Update the current training count (count rows with training === "Yes")
+  currentTrainingCount = signups.filter(item => item.training === "Yes").length;
+
+  // Compute how many training slots remain:
+  const trainingRemaining = trainingQuota - currentTrainingCount;
+
+  // Update the trainingSlots element to display the remaining training slots
+  document.getElementById("trainingSlots").textContent = `1v1 Training Slots Available: ${trainingRemaining} out of ${trainingQuota}`;
   
   const mySignups = getMySignups();
   
@@ -134,6 +143,7 @@ function updateDisplay(signups) {
   document.getElementById("signUpBtn").disabled = remainingSlots <= 0;
   document.getElementById("loadingMsg")?.remove();
   document.getElementById("name").value = "";
+
 }
 
 // --- Form Validation for Enabling/Disabling the Sign-Up Button ---
