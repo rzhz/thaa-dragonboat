@@ -35,6 +35,7 @@ function saveMySignups(mySignups) {
 
 // --- Global State ---
 let signupsLoaded = false;
+let currentTrainingCount = 0; // To track current count of training sign-ups
 
 // --- Fetch Signups ---
 async function fetchSignups() {
@@ -67,13 +68,25 @@ async function signUp() {
     alert("You have already signed up with this name on this device.");
     return;
   }
+
+  // Check training quota if training checkbox is checked
+  const trainingChecked = document.getElementById("training").checked;
+  // currentTrainingCount is updated in updateDisplay based on backend data
+  if (trainingChecked && currentTrainingCount >= trainingQuota) {
+    alert("The quota for 1v1 training has been reached.");
+    return;
+  }
+  
+  const training = trainingChecked ? "Yes" : "No";
   
   try {
     const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&hand=${encodeURIComponent(hand)}&date=${eventDate}`);
     const signups = await response.json();
-    // Add the new name to our device's list
-    mySignups.push(name);
-    saveMySignups(mySignups);
+    // If signup succeeds and training is selected, add to this device's local list
+    if (training === "Yes") {
+      mySignups.push(name);
+      saveMySignups(mySignups);
+    }
     updateDisplay(signups);
   } catch (error) {
     console.error('Error signing up:', error);
@@ -119,15 +132,20 @@ function updateDisplay(signups) {
   
   const mySignups = getMySignups();
   
-  signups.forEach(({ name, hand }) => {
+  signups.forEach(({ name, hand, training }) => {
     const listItem = document.createElement("li");
     listItem.classList.add("signup-item");
     
+    // Display name, hand, and optionally a label for 1v1 training
+    let displayText = `${name} (${hand})`;
+    if (training === "Yes") {
+      displayText += " [1v1]";
+    }
     const nameSpan = document.createElement("span");
-    nameSpan.textContent = `${name} (${hand})`;
+    nameSpan.textContent = displayText;
     listItem.appendChild(nameSpan);
     
-    // Show the Remove button only for names added from this device
+    // Show the Remove button if this name was added from this device
     if (mySignups.includes(name)) {
       const removeButton = document.createElement("button");
       removeButton.textContent = "Remove";
