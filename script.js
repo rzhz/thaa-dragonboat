@@ -55,6 +55,12 @@ async function signUp() {
     alert("Please wait for the sign-up list to load.");
     return;
   }
+      
+  // Ensure the waiver checkbox is checked
+  if (!document.getElementById("waiverCheck").checked) {
+      alert("Please confirm that you have filled in the registration form and signed the waiver.");
+      return;
+  }
   const name = document.getElementById("name").value.trim();
   const hand = document.getElementById("hand").value;
   if (!name || !hand) {
@@ -167,15 +173,21 @@ function updateDisplay(signups) {
 
 // --- Form Validation for Enabling/Disabling the Sign-Up Button ---
 function validateFormInputs() {
-  const name = document.getElementById("name").value.trim();
-  const hand = document.getElementById("hand").value;
-  const signUpBtn = document.getElementById("signUpBtn");
-  const isValid = name !== "" && hand !== "";
-  signUpBtn.disabled = !isValid;
-  signUpBtn.style.backgroundColor = isValid ? "#4CAF50" : "#ccc";
+    const name = document.getElementById("name").value.trim();
+    const hand = document.getElementById("hand").value;
+    const waiverChecked = document.getElementById("waiverCheck").checked;
+    const signUpBtn = document.getElementById("signUpBtn");
+    
+    // All required inputs (name, hand, and waiver checkbox) must be true
+    const isValid = name !== "" && hand !== "" && waiverChecked;
+    
+    signUpBtn.disabled = !isValid;
+    signUpBtn.style.backgroundColor = isValid ? "#4CAF50" : "#ccc";
 }
+
 document.getElementById("name").addEventListener("input", validateFormInputs);
 document.getElementById("hand").addEventListener("change", validateFormInputs);
+document.getElementById("waiverCheck").addEventListener("change", validateFormInputs);
 
 // --- Initialize on Page Load ---
 window.onload = () => {
