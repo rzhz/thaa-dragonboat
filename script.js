@@ -55,44 +55,44 @@ async function signUp() {
     alert("Please wait for the sign-up list to load.");
     return;
   }
-      
-  // Ensure the waiver checkbox is checked
-  if (!document.getElementById("waiverCheck").checked) {
-      alert("Please confirm that you have filled in the registration form and signed the waiver.");
-      return;
-  }
   const name = document.getElementById("name").value.trim();
   const hand = document.getElementById("hand").value;
   if (!name || !hand) {
     alert("Please enter your name and select your dominant hand.");
     return;
   }
-  
-  // Check for duplicates on this device
+
+  // Prevent device‐side duplicates
   let mySignups = getMySignups();
   if (mySignups.includes(name)) {
     alert("You have already signed up with this name on this device.");
     return;
   }
-  
-  // Check training quota if training checkbox is checked
+
+  // Check training quota
   const trainingChecked = document.getElementById("training").checked;
   if (trainingChecked && currentTrainingCount >= trainingQuota) {
     alert("The quota for 1v1 training has been reached.");
     return;
   }
-  
   const training = trainingChecked ? "Yes" : "No";
-  
+
   try {
-    // Include the training parameter in the URL
-    const response = await fetch(`${apiUrl}?action=signup&name=${encodeURIComponent(name)}&hand=${encodeURIComponent(hand)}&training=${encodeURIComponent(training)}&date=${eventDate}`);
+    // **Include** the training parameter in the request URL
+    const response = await fetch(
+      `${apiUrl}` +
+      `?action=signup` +
+      `&name=${encodeURIComponent(name)}` +
+      `&hand=${encodeURIComponent(hand)}` +
+      `&training=${encodeURIComponent(training)}` +
+      `&date=${eventDate}`
+    );
     const signups = await response.json();
-    // If signup succeeds and training is selected, add to this device's local list
-    if (training === "Yes") {
-      mySignups.push(name);
-      saveMySignups(mySignups);
-    }
+
+    // **Always** add this name to the device’s list, so we can show Remove later
+    mySignups.push(name);
+    saveMySignups(mySignups);
+
     updateDisplay(signups);
   } catch (error) {
     console.error('Error signing up:', error);
