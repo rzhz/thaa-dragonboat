@@ -3,7 +3,7 @@
 // --- Configuration & Event Details ---
 const apiUrl = 'https://script.google.com/macros/s/AKfycbyLYPNnQbwUg7YPpJJgXG3Th2jFP2ocB_5Gekbe8aYEVwNSFls7cYEihC9jEk1_9trT/exec';
 const maxSlots = 40;
-const eventDate = '20250425';  // Must match the sheet name for the event
+const eventDate = '20250428';  // Must match the sheet name for the event
 const eventTime = '6:00-8:00pm';
 const trainingQuota = 8;
 const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210 (参考下图dock)';
