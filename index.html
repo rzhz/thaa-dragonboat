@@ -105,12 +105,12 @@
         <p><strong>欢迎你加入清华龙舟队，和我们一起去乘风破浪！</strong></p>
         <br>
         <!-- Date, Time, and Location -->
-        <p><strong>Date:</strong> <span id="eventDate"></span></p>
+        <!-- <p><strong>Date:</strong> <span id="eventDate"></span></p>
         <p><strong>Time:</strong> <span id="eventTime"></span></p>
         <p><strong>Location:</strong> <span id="eventLocation"></span></p> 
         <p id="slots">Available Slots: <span id="remainingSlots"></span></p>
         <p><strong>请在dockbox取救生衣及桨后前往dock，dock位置参见下面前两张图，dockbox位置参见后两张图。</strong></p>
-        <br>
+        <br>-->
         
         <!-- Intro -->
         <div id="intro">
@@ -140,10 +140,69 @@
             <p>【坐垫】- 防止磨屁股。往常会用剪开的瑜伽垫作为坐垫，分发的龙舟坐垫请大家每次训练自行携带。</p>
             <p>【划船手套】- 防止手打滑。</p>
             <p>【水鞋】- 推荐用于水上运动的鞋子（<a href="https://a.co/d/6LnmH1h">参考1</a>，<a href="https://a.co/d/gUl2f9m">参考2</a>，<a href="https://a.co/d/fGjI3tG">参考3</a>）没有的话拖鞋也可以。温馨提示：穿跑鞋的话，鞋子湿了之后会一直一直很臭🤢</p>
-        </div>
+        </div
+
+      <div class="sessions" style="display: flex; gap: 20px;">
+      
+      <!-- Session 1 -->
+      <div class="session" style="flex:1">
+        <h2>Friday Session</h2>
+        <p><strong>Date:</strong> <span id="eventDate1"></span></p>
+        <p><strong>Time:</strong> <span id="eventTime1"></span></p>
+        <p><strong>Location:</strong> <span id="eventLocation1"></span></p>
+        <p>Available Slots: <span id="remainingSlots1"></span></p>
+        <p><strong>请在dockbox取救生衣及桨后前往dock，dock位置参见下面前两张图，dockbox位置参见后两张图。</strong></p>
+
+        <input type="text" id="name1" placeholder="Enter your name" required>
+        <select id="hand1" required>
+          <option value="">选择你想要划哪边</option>
+            <option value="Left">Left</option>
+            <option value="Right">Right</option>
+            <option value="Both">Both</option>
+        </select>
+        <br>
+        <input type="checkbox" id="training1"><label for="training1">I sign up for 1v1 training (need to arrive 30 min earlier than the start time).</label>
+        <p id="trainingSlots1"></p>
+        <br>
+        <input type="checkbox" id="waiverCheck1"><label for="waiverCheck1">I have signed the waiver</label>
+        <button id="signUpBtn1" disabled>Sign Up</button>
+
+        <ul id="signupList1" class="signup-list">
+          <li id="loadingMsg1">Loading…</li>
+        </ul>
+      </div>
+
+      <!-- Session 2 -->
+      <div class="session" style="flex:1">
+        <h2>Sunday Session</h2>
+        <p><strong>Date:</strong> <span id="eventDate2"></span></p>
+        <p><strong>Time:</strong> <span id="eventTime2"></span></p>
+        <p><strong>Location:</strong> <span id="eventLocation2"></span></p>
+        <p>Available Slots: <span id="remainingSlots2"></span></p>
+
+        <input type="text" id="name2" placeholder="Enter your name" required>
+        <select id="hand2" required>
+          <option value="">选择你想要划哪边</option>
+            <option value="Left">Left</option>
+            <option value="Right">Right</option>
+            <option value="Both">Both</option>
+        </select>
+        <br>
+        <input type="checkbox" id="training2"><label for="training2">I sign up for 1v1 training (need to arrive 30 min earlier than the start time).</label>
+        <p id="trainingSlots2"></p>
+        <br>
+        <input type="checkbox" id="waiverCheck2"><label for="waiverCheck2">I have filled in the registration form and signed the waiver before sign up.</label>
+        <button id="signUpBtn2" disabled>Sign Up</button>
+
+        <ul id="signupList2" class="signup-list">
+          <li id="loadingMsg2">Loading…</li>
+        </ul>
+      </div>
+
+    </div>
         
         <!-- Sign-up form -->
-        <input type="text" id="name" placeholder="Enter your name" required>
+        <!-- <input type="text" id="name" placeholder="Enter your name" required>
 
         <select id="hand" style="margin-bottom: 10px;" required>
             <option value="">选择你想要划哪边</option>
@@ -161,7 +220,7 @@
         <input type="checkbox" id="waiverCheck" required>
         <label for="waiverCheck">I have filled in the registration form and signed the waiver before sign up.</label>
     
-        <button onclick="signUp()" id="signUpBtn">Sign Up</button>
+        <button onclick="signUp()" id="signUpBtn">Sign Up</button>-->
 
         <img src="location3.jpg" alt="Descriptive text" style="max-width: 100%; margin-top: 20px;"> 
         <img src="location4.jpg" alt="Descriptive text" style="max-width: 100%; margin-top: 20px;">
