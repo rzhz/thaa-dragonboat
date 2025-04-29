@@ -22,180 +22,166 @@ document.getElementById('eventDate').textContent = formattedEventDate;
 document.getElementById('eventTime').textContent = eventTime;
 document.getElementById('eventLocation').textContent = eventLocation;
 
-// --- Local Storage Helpers ---
-function getMySignups() {
-  const key = `mySignups_${eventDate}`;
+// --- Helpers for localStorage per session ---
+function getMySignups(sessionDate) {
+  const key = `mySignups_${sessionDate}`;
   const stored = localStorage.getItem(key);
   return stored ? JSON.parse(stored) : [];
 }
-
-function saveMySignups(mySignups) {
-  const key = `mySignups_${eventDate}`;
-  localStorage.setItem(key, JSON.stringify(mySignups));
+function saveMySignups(sessionDate, list) {
+  localStorage.setItem(`mySignups_${sessionDate}`, JSON.stringify(list));
 }
 
-// --- Global State ---
-let signupsLoaded = false;
-let currentTrainingCount = 0; // To track current count of training sign-ups
-
-// --- Fetch Signups ---
-async function fetchSignups() {
-  try {
-    const response = await fetch(`${apiUrl}?action=get&date=${eventDate}`);
-    const signups = await response.json();
-    console.log('Signups data:', signups);
-    updateDisplay(signups);
-  } catch (error) {
-    console.error('Error fetching signups:', error);
-  }
+// --- Fetch & Display for one session ---
+async function fetchSession(session) {
+  const { key, date } = session;
+  const res = await fetch(`${apiUrl}?action=get&date=${date}`);
+  const signups = await res.json();
+  updateSessionDisplay(session, signups);
 }
 
-// --- Add a New Signup ---
-async function signUp() {
-  if (!signupsLoaded) {
-    alert("Please wait for the sign-up list to load.");
-    return;
-  }
-  const name = document.getElementById("name").value.trim();
-  const hand = document.getElementById("hand").value;
-  if (!name || !hand) {
-    alert("Please enter your name and select your dominant hand.");
-    return;
-  }
+async function signUpSession(session) {
+  const { key, date } = session;
+  // load state
+  const loadedFlag = window[`signupsLoaded${key}`];
+  if (!loadedFlag) return alert('Wait for list to load.');
 
-  // Prevent device‐side duplicates
-  let mySignups = getMySignups();
-  if (mySignups.includes(name)) {
-    alert("You have already signed up with this name on this device.");
-    return;
-  }
+  const nameEl = document.getElementById(`name${key}`);
+  const handEl = document.getElementById(`hand${key}`);
+  const trainEl = document.getElementById(`training${key}`);
+  const waiverEl = document.getElementById(`waiverCheck${key}`);
 
-  // Check training quota
-  const trainingChecked = document.getElementById("training").checked;
-  if (trainingChecked && currentTrainingCount >= trainingQuota) {
-    alert("The quota for 1v1 training has been reached.");
-    return;
-  }
-  const training = trainingChecked ? "Yes" : "No";
+  const name = nameEl.value.trim(),
+        hand = handEl.value,
+        training = trainEl.checked ? 'Yes' : 'No';
 
-  try {
-    // **Include** the training parameter in the request URL
-    const response = await fetch(
-      `${apiUrl}` +
-      `?action=signup` +
-      `&name=${encodeURIComponent(name)}` +
-      `&hand=${encodeURIComponent(hand)}` +
-      `&training=${encodeURIComponent(training)}` +
-      `&date=${eventDate}`
-    );
-    const signups = await response.json();
+  if (!name || !hand || !waiverEl.checked) 
+    return alert('Complete name, hand & waiver.');
 
-    // **Always** add this name to the device’s list, so we can show Remove later
-    mySignups.push(name);
-    saveMySignups(mySignups);
+  const myList = getMySignups(date);
+  if (myList.includes(name)) 
+    return alert('Already signed up from this device.');
 
-    updateDisplay(signups);
-  } catch (error) {
-    console.error('Error signing up:', error);
-  }
+  // check training quota
+  const currentCount = Array.from(
+    document.querySelectorAll(`#signupList${key} li`)
+  ).filter(li=>li.textContent.includes('[1v1]')).length;
+  if (training==='Yes' && currentCount >= trainingQuota)
+    return alert('1v1 quota reached.');
+
+  // send to server
+  const url = `${apiUrl}?action=signup` +
+              `&name=${encodeURIComponent(name)}` +
+              `&hand=${encodeURIComponent(hand)}` +
+              `&training=${encodeURIComponent(training)}` +
+              `&date=${date}`;
+  const res = await fetch(url);
+  const signups = await res.json();
+
+  myList.push(name);
+  saveMySignups(date, myList);
+  updateSessionDisplay(session, signups);
 }
 
-// --- Remove a Signup ---
-async function removeSignup(name) {
-  let mySignups = getMySignups();
-  if (!mySignups.includes(name)) {
-    alert("You can't remove this sign-up because it's not associated with this device.");
-    return;
-  }
-  
-  try {
-    const response = await fetch(`${apiUrl}?action=remove&name=${encodeURIComponent(name)}&date=${eventDate}`);
-    const signups = await response.json();
-    // Remove the name from our device's list
-    mySignups = mySignups.filter(n => n !== name);
-    saveMySignups(mySignups);
-    updateDisplay(signups);
-  } catch (error) {
-    console.error('Error removing signup:', error);
-  }
+async function removeSessionSignup(session, name) {
+  const { key, date } = session;
+  const myList = getMySignups(date);
+  if (!myList.includes(name))
+    return alert("Can't remove—didn't sign up from this device.");
+
+  const res = await fetch(`${apiUrl}?action=remove&name=${encodeURIComponent(name)}&date=${date}`);
+  const signups = await res.json();
+  const newList = myList.filter(n=>n!==name);
+  saveMySignups(date,newList);
+  updateSessionDisplay(session, signups);
 }
 
-// --- Update the Display ---
-function updateDisplay(signups) {
-  signupsLoaded = true;
-  const remainingSlots = maxSlots - signups.length;
-  document.getElementById("remainingSlots").textContent = remainingSlots;
-  const signupList = document.getElementById("signupList");
-  signupList.innerHTML = "";
+// --- Render the list & slots for one session ---
+function updateSessionDisplay(session, signups) {
+  const { key, date, time } = session;
+  // mark loaded
+  window[`signupsLoaded${key}`] = true;
 
-  // Update the current training count (count rows with training === "Yes")
-  currentTrainingCount = signups.filter(item => item.training === "Yes").length;
+  // place date/time/location
+  const dateObj = new Date(
+    parseInt(date.slice(0,4)),
+    parseInt(date.slice(4,6))-1,
+    parseInt(date.slice(6,8))
+  );
+  document.getElementById(`eventDate${key}`).textContent =
+    dateObj.toLocaleDateString(undefined,{ weekday:'long', year:'numeric', month:'long', day:'numeric' });
+  document.getElementById(`eventTime${key}`).textContent = time;
+  document.getElementById(`eventLocation${key}`).textContent = eventLocation;
 
-  // Compute how many training slots remain:
-  const trainingRemaining = trainingQuota - currentTrainingCount;
+  // slots
+  document.getElementById(`remainingSlots${key}`).textContent =
+    Math.max(0, maxSlots - signups.length);
 
-  // Update the trainingSlots element to display the remaining training slots
-  document.getElementById("trainingSlots").textContent = `1v1 Training Slots Available: ${trainingRemaining} out of ${trainingQuota}`;
+  // training slots
+  const trainCount = signups.filter(s=>s.training==='Yes').length;
+  document.getElementById(`trainingSlots${key}`).textContent =
+    `1v1 Training Available: ${trainingQuota - trainCount} / ${trainingQuota}`;
 
-  
-  const mySignups = getMySignups();
-  
-  signups.forEach(({ name, hand, training }) => {
-    const listItem = document.createElement("li");
-    listItem.classList.add("signup-item");
-    
-    // Display name, hand, and optionally a label for 1v1 training
-    let displayText = `${name} (${hand})`;
-    if (training === "Yes") {
-      displayText += " [1v1]";
+  // render list
+  const listEl = document.getElementById(`signupList${key}`);
+  listEl.innerHTML = '';
+  const myList = getMySignups(date);
+
+  signups.forEach(({name,hand,training})=>{
+    const li = document.createElement('li');
+    li.className = 'signup-item';
+    let txt = `${name} (${hand})`;
+    if (training==='Yes') txt += ' [1v1]';
+    const span = document.createElement('span'); span.textContent = txt;
+    li.appendChild(span);
+    if (myList.includes(name)) {
+      const btn = document.createElement('button');
+      btn.className = 'remove-button';
+      btn.textContent = 'Remove';
+      btn.onclick = ()=> removeSessionSignup(session,name);
+      li.appendChild(btn);
     }
-    const nameSpan = document.createElement("span");
-    nameSpan.textContent = displayText;
-    listItem.appendChild(nameSpan);
-    
-    // Show the Remove button if this name was added from this device
-    if (mySignups.includes(name)) {
-      const removeButton = document.createElement("button");
-      removeButton.textContent = "Remove";
-      removeButton.classList.add("remove-button");
-      removeButton.onclick = () => removeSignup(name);
-      listItem.appendChild(removeButton);
-    }
-    
-    signupList.appendChild(listItem);
+    listEl.appendChild(li);
   });
-  
-  // Disable sign-up button if no slots remain
-  document.getElementById("signUpBtn").disabled = remainingSlots <= 0;
-  document.getElementById("loadingMsg")?.remove();
-  document.getElementById("name").value = "";
 
+  // clear inputs & disable if needed
+  document.getElementById(`signUpBtn${key}`).disabled = signups.length >= maxSlots;
+  ['name','hand','training','waiverCheck'].forEach(id=>{
+    const el = document.getElementById(id+key);
+    if (el) {
+      if (el.type==='checkbox'||el.tagName==='SELECT') el.checked=false, el.value='';
+      else el.value='';
+    }
+  });
 }
 
-// --- Form Validation for Enabling/Disabling the Sign-Up Button ---
-function validateFormInputs() {
-    const name = document.getElementById("name").value.trim();
-    const hand = document.getElementById("hand").value;
-    const waiverChecked = document.getElementById("waiverCheck").checked;
-    const signUpBtn = document.getElementById("signUpBtn");
-    
-    // All required inputs (name, hand, and waiver checkbox) must be true
-    const isValid = name !== "" && hand !== "" && waiverChecked;
-    
-    signUpBtn.disabled = !isValid;
-    signUpBtn.style.backgroundColor = isValid ? "#4CAF50" : "#ccc";
+// --- Form Validation per session ---
+function validateInputs(key) {
+  const name = document.getElementById(`name${key}`).value.trim();
+  const hand = document.getElementById(`hand${key}`).value;
+  const waiver = document.getElementById(`waiverCheck${key}`).checked;
+  const btn = document.getElementById(`signUpBtn${key}`);
+  const ok = name!=='' && hand!=='' && waiver;
+  btn.disabled = !ok;
+  btn.style.backgroundColor = ok? '#4CAF50':'#ccc';
 }
 
-document.getElementById("name").addEventListener("input", validateFormInputs);
-document.getElementById("hand").addEventListener("change", validateFormInputs);
-document.getElementById("waiverCheck").addEventListener("change", validateFormInputs);
-
-// --- Initialize on Page Load ---
+// --- Hook everything up on load ---
 window.onload = () => {
-  fetchSignups();
-  validateFormInputs();
+  sessions.forEach(s => {
+    // fetch & render
+    fetchSession(s);
+    // attach signup click
+    document.getElementById(`signUpBtn${s.key}`).onclick = ()=> signUpSession(s);
+    // attach input validators
+    ['name','hand','waiverCheck'].forEach(id=>{
+      document.getElementById(id+s.key)
+        .addEventListener(id==='hand'?'change':'input', ()=> validateInputs(s.key));
+      if(id==='waiverCheck'){
+        document.getElementById(id+s.key)
+          .addEventListener('change', ()=> validateInputs(s.key));
+      }
+    });
+  });
 };
-
-
-
 
