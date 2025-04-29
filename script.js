@@ -1,128 +1,131 @@
 // The maxSlots need to be updated to change the maximum number of sign-ups each time.
 // Everytime the eventDate is updated, it creates a new sheet in the same Excel file.
-// --- Configuration & Event Details ---
-const apiUrl = 'https://script.google.com/macros/s/AKfycbyLYPNnQbwUg7YPpJJgXG3Th2jFP2ocB_5Gekbe8aYEVwNSFls7cYEihC9jEk1_9trT/exec';
-const maxSlots = 40;
-const eventDate = '20250502';  // Must match the sheet name for the event
-const eventTime = '6:00-8:00pm';
+// —— Configuration & Event Details ——
+const apiUrl        = 'https://script.google.com/macros/s/AKfycbyLYPNnQbwUg7YPpJJgXG3Th2jFP2ocB_5Gekbe8aYEVwNSFls7cYEihC9jEk1_9trT/exec';
+const maxSlots      = 40;
 const trainingQuota = 8;
-const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210 (参考下图dock)';
-//const eventLocation = 'MIT E51 (Tang Center), Cambridge, MA (从停车场的角落的门进去更方便被队友看到给你开门）';
+const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210';
 
+// Two sessions’ dates & times:
+const sessions = [
+  { key: '1', date: '20250502', time: '6:00-8:00pm', title: 'Friday Session' },
+  { key: '2', date: '20250504', time: '6:00-8:00pm', title: 'Sunday Session' }
+];
 
-// Set event details in the HTML
-const eventDateObj = new Date(
-  parseInt(eventDate.slice(0, 4)),
-  parseInt(eventDate.slice(4, 6)) - 1,
-  parseInt(eventDate.slice(6, 8))
-);
-const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-const formattedEventDate = eventDateObj.toLocaleDateString(undefined, options);
-document.getElementById('eventDate').textContent = formattedEventDate;
-document.getElementById('eventTime').textContent = eventTime;
-document.getElementById('eventLocation').textContent = eventLocation;
-
-// --- Helpers for localStorage per session ---
-function getMySignups(sessionDate) {
-  const key = `mySignups_${sessionDate}`;
-  const stored = localStorage.getItem(key);
+// — Helpers for localStorage per session —
+function getMySignups(date) {
+  const stored = localStorage.getItem(`mySignups_${date}`);
   return stored ? JSON.parse(stored) : [];
 }
-function saveMySignups(sessionDate, list) {
-  localStorage.setItem(`mySignups_${sessionDate}`, JSON.stringify(list));
+function saveMySignups(date, list) {
+  localStorage.setItem(`mySignups_${date}`, JSON.stringify(list));
 }
 
-// --- Fetch & Display for one session ---
-async function fetchSession(session) {
+// — Fetch & display for each session —
+async function fetchSignups(session) {
   const { key, date } = session;
   const res = await fetch(`${apiUrl}?action=get&date=${date}`);
   const signups = await res.json();
-  updateSessionDisplay(session, signups);
+  updateDisplay(session, signups);
 }
 
+// — Sign up for a session —
 async function signUpSession(session) {
   const { key, date } = session;
-  // load state
-  const loadedFlag = window[`signupsLoaded${key}`];
-  if (!loadedFlag) return alert('Wait for list to load.');
+  if (!window[`loaded${key}`]) {
+    return alert('Please wait for the list to load.');
+  }
 
-  const nameEl = document.getElementById(`name${key}`);
-  const handEl = document.getElementById(`hand${key}`);
-  const trainEl = document.getElementById(`training${key}`);
+  const nameEl   = document.getElementById(`name${key}`);
+  const handEl   = document.getElementById(`hand${key}`);
+  const trainEl  = document.getElementById(`training${key}`);
   const waiverEl = document.getElementById(`waiverCheck${key}`);
 
   const name = nameEl.value.trim(),
         hand = handEl.value,
         training = trainEl.checked ? 'Yes' : 'No';
 
-  if (!name || !hand || !waiverEl.checked) 
-    return alert('Complete name, hand & waiver.');
+  if (!name || !hand || !waiverEl.checked) {
+    return alert('Please fill in name, hand, and confirm waiver.');
+  }
 
-  const myList = getMySignups(date);
-  if (myList.includes(name)) 
-    return alert('Already signed up from this device.');
+  // Prevent duplicates on this device
+  let myList = getMySignups(date);
+  if (myList.includes(name)) {
+    return alert('You have already signed up with this name on this device.');
+  }
 
-  // check training quota
-  const currentCount = Array.from(
-    document.querySelectorAll(`#signupList${key} li`)
-  ).filter(li=>li.textContent.includes('[1v1]')).length;
-  if (training==='Yes' && currentCount >= trainingQuota)
-    return alert('1v1 quota reached.');
+  // Check training quota
+  const currentCount = document
+    .querySelectorAll(`#signupList${key} li`)
+    .length - 1 + 0 // we’ll recalc in updateDisplay
+  // but simpler: we count after fetch below
 
-  // send to server
-  const url = `${apiUrl}?action=signup` +
-              `&name=${encodeURIComponent(name)}` +
-              `&hand=${encodeURIComponent(hand)}` +
-              `&training=${encodeURIComponent(training)}` +
-              `&date=${date}`;
+  // Perform the signup call (including training param!)
+  const url =
+    `${apiUrl}?action=signup` +
+    `&name=${encodeURIComponent(name)}` +
+    `&hand=${encodeURIComponent(hand)}` +
+    `&training=${encodeURIComponent(training)}` +
+    `&date=${date}`;
   const res = await fetch(url);
   const signups = await res.json();
 
+  // Save locally so Remove button appears
   myList.push(name);
   saveMySignups(date, myList);
-  updateSessionDisplay(session, signups);
+
+  updateDisplay(session, signups);
 }
 
-async function removeSessionSignup(session, name) {
+// — Remove for a session —
+async function removeSession(session, name) {
   const { key, date } = session;
-  const myList = getMySignups(date);
-  if (!myList.includes(name))
-    return alert("Can't remove—didn't sign up from this device.");
+  let myList = getMySignups(date);
+  if (!myList.includes(name)) {
+    return alert("Cannot remove: you didn't sign up on this device.");
+  }
 
-  const res = await fetch(`${apiUrl}?action=remove&name=${encodeURIComponent(name)}&date=${date}`);
+  const res = await fetch(
+    `${apiUrl}?action=remove&name=${encodeURIComponent(name)}&date=${date}`
+  );
   const signups = await res.json();
-  const newList = myList.filter(n=>n!==name);
-  saveMySignups(date,newList);
-  updateSessionDisplay(session, signups);
+
+  myList = myList.filter(n => n !== name);
+  saveMySignups(date, myList);
+
+  updateDisplay(session, signups);
 }
 
-// --- Render the list & slots for one session ---
-function updateSessionDisplay(session, signups) {
+// — Render slots & list —
+function updateDisplay(session, signups) {
   const { key, date, time } = session;
-  // mark loaded
-  window[`signupsLoaded${key}`] = true;
 
-  // place date/time/location
-  const dateObj = new Date(
+  // Mark loaded
+  window[`loaded${key}`] = true;
+
+  // Date formatting
+  const d = new Date(
     parseInt(date.slice(0,4)),
-    parseInt(date.slice(4,6))-1,
+    parseInt(date.slice(4,6)) - 1,
     parseInt(date.slice(6,8))
   );
-  document.getElementById(`eventDate${key}`).textContent =
-    dateObj.toLocaleDateString(undefined,{ weekday:'long', year:'numeric', month:'long', day:'numeric' });
-  document.getElementById(`eventTime${key}`).textContent = time;
+  document.getElementById(`eventDate${key}`).textContent = d.toLocaleDateString(undefined,{
+    weekday:'long', year:'numeric', month:'long', day:'numeric'
+  });
+  document.getElementById(`eventTime${key}`).textContent     = time;
   document.getElementById(`eventLocation${key}`).textContent = eventLocation;
 
-  // slots
-  document.getElementById(`remainingSlots${key}`).textContent =
-    Math.max(0, maxSlots - signups.length);
+  // Slots
+  const remaining = Math.max(0, maxSlots - signups.length);
+  document.getElementById(`remainingSlots${key}`).textContent = remaining;
 
-  // training slots
-  const trainCount = signups.filter(s=>s.training==='Yes').length;
+  // Training quota count
+  const trainCount = signups.filter(s => s.training==='Yes').length;
   document.getElementById(`trainingSlots${key}`).textContent =
-    `1v1 Training Available: ${trainingQuota - trainCount} / ${trainingQuota}`;
+    `1v1 Training Slots Available: ${trainingQuota - trainCount} out of ${trainingQuota}`;
 
-  // render list
+  // Render list
   const listEl = document.getElementById(`signupList${key}`);
   listEl.innerHTML = '';
   const myList = getMySignups(date);
@@ -130,58 +133,62 @@ function updateSessionDisplay(session, signups) {
   signups.forEach(({name,hand,training})=>{
     const li = document.createElement('li');
     li.className = 'signup-item';
+
     let txt = `${name} (${hand})`;
     if (training==='Yes') txt += ' [1v1]';
-    const span = document.createElement('span'); span.textContent = txt;
+    const span = document.createElement('span');
+    span.textContent = txt;
     li.appendChild(span);
+
     if (myList.includes(name)) {
       const btn = document.createElement('button');
       btn.className = 'remove-button';
       btn.textContent = 'Remove';
-      btn.onclick = ()=> removeSessionSignup(session,name);
+      btn.onclick = ()=> removeSession(session, name);
       li.appendChild(btn);
     }
     listEl.appendChild(li);
   });
 
-  // clear inputs & disable if needed
-  document.getElementById(`signUpBtn${key}`).disabled = signups.length >= maxSlots;
+  // Reset form fields & disable button if full
+  document.getElementById(`signUpBtn${key}`).disabled = (signups.length >= maxSlots);
   ['name','hand','training','waiverCheck'].forEach(id=>{
     const el = document.getElementById(id+key);
-    if (el) {
-      if (el.type==='checkbox'||el.tagName==='SELECT') el.checked=false, el.value='';
-      else el.value='';
-    }
+    if (!el) return;
+    if (el.type==='checkbox') el.checked = false;
+    else el.value = '';
   });
+
+  document.getElementById(`loadingMsg${key}`)?.remove();
 }
 
-// --- Form Validation per session ---
+// — Form validation per session —
 function validateInputs(key) {
-  const name = document.getElementById(`name${key}`).value.trim();
-  const hand = document.getElementById(`hand${key}`).value;
-  const waiver = document.getElementById(`waiverCheck${key}`).checked;
-  const btn = document.getElementById(`signUpBtn${key}`);
-  const ok = name!=='' && hand!=='' && waiver;
+  const name  = document.getElementById(`name${key}`).value.trim();
+  const hand  = document.getElementById(`hand${key}`).value;
+  const waiver= document.getElementById(`waiverCheck${key}`).checked;
+  const btn   = document.getElementById(`signUpBtn${key}`);
+  const ok    = name!=='' && hand!=='' && waiver;
   btn.disabled = !ok;
-  btn.style.backgroundColor = ok? '#4CAF50':'#ccc';
+  btn.style.backgroundColor = ok ? '#4CAF50' : '#ccc';
 }
 
-// --- Hook everything up on load ---
+// — Wire up on load —
 window.onload = () => {
   sessions.forEach(s => {
-    // fetch & render
-    fetchSession(s);
-    // attach signup click
-    document.getElementById(`signUpBtn${s.key}`).onclick = ()=> signUpSession(s);
-    // attach input validators
+    // fetch initial list
+    fetchSignups(s);
+    // hook up sign-up click
+    document.getElementById(`signUpBtn${s.key}`)
+      .addEventListener('click', ()=> signUpSession(s));
+    // hook up validation
     ['name','hand','waiverCheck'].forEach(id=>{
-      document.getElementById(id+s.key)
-        .addEventListener(id==='hand'?'change':'input', ()=> validateInputs(s.key));
+      const el = document.getElementById(id+s.key);
+      const evt= id==='hand'?'change':'input';
+      el.addEventListener(evt, ()=> validateInputs(s.key));
       if(id==='waiverCheck'){
-        document.getElementById(id+s.key)
-          .addEventListener('change', ()=> validateInputs(s.key));
+        el.addEventListener('change', ()=> validateInputs(s.key));
       }
     });
   });
 };
-
