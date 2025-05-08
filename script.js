@@ -8,7 +8,7 @@ const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210';
 
 // Two sessions’ dates & times:
 const sessions = [
-  { key: '1', date: '20250509', time: '6:00-8:00pm', title: 'Friday Session' },
+  { key: '1', date: '20250510', time: '11:00am-1:00pm', title: 'Saturday Session' },
   { key: '2', date: '20250511', time: '3:00-5:00pm', title: 'Sunday Session' }
 ];
 
