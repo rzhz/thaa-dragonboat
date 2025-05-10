@@ -2,7 +2,7 @@
 // Everytime the eventDate is updated, it creates a new sheet in the same Excel file.
 // —— Configuration & Event Details ——
 const apiUrl        = 'https://script.google.com/macros/s/AKfycbyLYPNnQbwUg7YPpJJgXG3Th2jFP2ocB_5Gekbe8aYEVwNSFls7cYEihC9jEk1_9trT/exec';
-const maxSlots      = 40;
+const maxSlots      = 42;
 const trainingQuota = 8;
 const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210';
 
