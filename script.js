@@ -2,14 +2,14 @@
 // Everytime the eventDate is updated, it creates a new sheet in the same Excel file.
 // —— Configuration & Event Details ——
 const apiUrl        = 'https://script.google.com/macros/s/AKfycbyLYPNnQbwUg7YPpJJgXG3Th2jFP2ocB_5Gekbe8aYEVwNSFls7cYEihC9jEk1_9trT/exec';
-const maxSlots      = 42;
+const maxSlots      = 40;
 const trainingQuota = 8;
 const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210';
 
 // Two sessions’ dates & times:
 const sessions = [
-  { key: '1', date: '20250509', time: '6:00-8:00pm', title: 'Friday Session' },
-  { key: '2', date: '20250511', time: '3:00-5:00pm', title: 'Sunday Session' }
+  { key: '1', date: '20250516', time: '6:00-8:00pm', title: 'Friday Session' },
+  { key: '2', date: '20250518', time: '3:00-5:00pm', title: 'Sunday Session' }
 ];
 
 // — Helpers for localStorage per session —
@@ -124,6 +124,15 @@ function updateDisplay(session, signups) {
   const trainCount = signups.filter(s => s.training==='Yes').length;
   document.getElementById(`trainingSlots${key}`).textContent =
     `1v1 Training Slots Available: ${trainingQuota - trainCount} out of ${trainingQuota}`;
+
+  // Disable the training checkbox when quota is exhausted
+  const trainCheckbox = document.getElementById(`training${key}`);
+  if (trainingRemaining <= 0) {
+    trainCheckbox.checked = false;        // uncheck if it was checked
+    trainCheckbox.disabled = true;        // disable so it cannot be re‐checked
+  } else {
+    trainCheckbox.disabled = false;       // re‐enable if slots open again
+  }
 
   // Render list
   const listEl = document.getElementById(`signupList${key}`);
