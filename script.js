@@ -46,9 +46,8 @@ async function signUpSession(session) {
     ? (document.getElementById(`training${key}`).checked ? 'Yes' : 'No')
     : 'No';
 
-  const name = nameEl.value.trim(),
-        hand = handEl.value,
-        training = trainEl.checked ? 'Yes' : 'No';
+  const name = nameEl.value.trim();
+  const hand = handEl.value;
 
   if (!name || !hand || !waiverEl.checked) {
     return alert('Please fill in name, hand, and confirm waiver.');
