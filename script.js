@@ -8,10 +8,10 @@ const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210';
 
 // Two sessions’ dates & times:
 const sessions = [
-  { key: '1', date: '20250516', time: '6:00-8:00pm', title: 'Friday Session' },
-  { key: '2', date: '20250518', time: '3:00-5:00pm', title: 'Sunday Session' },
-  { key: '3', date: '20250519', time: '6:00-8:00pm', title: 'Monday Session' },
-  { key: '4', date: '20250522', time: '6:00-8:00pm', title: 'Thursday Session' }
+  { key: '1', date: '20250516', time: '6:00-8:00pm', title: 'Friday Session', trainingEnabled: true  },
+  { key: '2', date: '20250518', time: '3:00-5:00pm', title: 'Sunday Session', trainingEnabled: true  },
+  { key: '3', date: '20250519', time: '6:00-8:00pm', title: 'Monday Session', trainingEnabled: false  },
+  { key: '4', date: '20250522', time: '6:00-8:00pm', title: 'Thursday Session', trainingEnabled: false  }
 ];
 
 // — Helpers for localStorage per session —
@@ -40,8 +40,11 @@ async function signUpSession(session) {
 
   const nameEl   = document.getElementById(`name${key}`);
   const handEl   = document.getElementById(`hand${key}`);
-  const trainEl  = document.getElementById(`training${key}`);
   const waiverEl = document.getElementById(`waiverCheck${key}`);
+  // only look for training checkbox if enabled
+  const training = session.trainingEnabled
+    ? (document.getElementById(`training${key}`).checked ? 'Yes' : 'No')
+    : 'No';
 
   const name = nameEl.value.trim(),
         hand = handEl.value,
@@ -122,18 +125,18 @@ function updateDisplay(session, signups) {
   const remaining = Math.max(0, maxSlots - signups.length);
   document.getElementById(`remainingSlots${key}`).textContent = remaining;
 
-  // Training quota count
-  const trainCount = signups.filter(s => s.training==='Yes').length;
-  document.getElementById(`trainingSlots${key}`).textContent =
-    `1v1 Training Slots Available: ${trainingQuota - trainCount} out of ${trainingQuota}`;
+  if (session.trainingEnabled) {
+    const trainCount = signups.filter(s => s.training==='Yes').length;
+    document.getElementById(`trainingSlots${key}`).textContent =
+      `1v1 Training Slots Available: ${trainingQuota - trainCount} out of ${trainingQuota}`;
 
-  // Disable the training checkbox when quota is exhausted
-  const trainCheckbox = document.getElementById(`training${key}`);
-  if (trainingRemaining <= 0) {
-    trainCheckbox.checked = false;        // uncheck if it was checked
-    trainCheckbox.disabled = true;        // disable so it cannot be re‐checked
-  } else {
-    trainCheckbox.disabled = false;       // re‐enable if slots open again
+    const trainCheckbox = document.getElementById(`training${key}`);
+    if (trainingQuota - trainCount <= 0) {
+      trainCheckbox.checked = false;
+      trainCheckbox.disabled = true;
+    } else {
+      trainCheckbox.disabled = false;
+    }
   }
 
   // Render list
@@ -175,9 +178,11 @@ function updateDisplay(session, signups) {
 
 // — Form validation per session —
 function validateInputs(key) {
+  const session = sessions.find(s=>s.key===key);
   const name  = document.getElementById(`name${key}`).value.trim();
   const hand  = document.getElementById(`hand${key}`).value;
   const waiver= document.getElementById(`waiverCheck${key}`).checked;
+  // if training is enabled we do *not* require it to validate here
   const btn   = document.getElementById(`signUpBtn${key}`);
   const ok    = name!=='' && hand!=='' && waiver;
   btn.disabled = !ok;
