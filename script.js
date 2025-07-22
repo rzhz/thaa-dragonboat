@@ -14,17 +14,18 @@ const sessions = [
   //{ key: '4', date: '20250522', time: '6:00-8:00pm', title: 'Thursday Session', trainingEnabled: false, location: 'MIT Richard J. Resch Boathouse, 409 Memorial Dr, Cambridge, MA 02139' }
 ];
 
-document.getElementById('langSwitcher').onclick = function() {
-  // Check the current language by reading button text
-  const isEnglish = this.textContent === 'English';
-
-  // Show/hide language blocks
-  document.querySelectorAll('.lang-cn').forEach(el => el.style.display = isEnglish ? 'none' : '');
-  document.querySelectorAll('.lang-en').forEach(el => el.style.display = isEnglish ? '' : 'none');
-
-  // Change the button text
-  this.textContent = isEnglish ? '中文' : 'English';
+// This assumes your Chinese elements have class "lang-cn" and English "lang-en"
+const btn = document.getElementById('langToggleBtn');
+let isChinese = true;
+btn.onclick = function() {
+  isChinese = !isChinese;
+  document.querySelectorAll('.lang-cn').forEach(el => el.style.display = isChinese ? '' : 'none');
+  document.querySelectorAll('.lang-en').forEach(el => el.style.display = isChinese ? 'none' : '');
+  btn.textContent = isChinese ? 'EN' : '中'; // Show the opposite for toggling
 };
+// Initialize: show English, hide Chinese
+document.querySelectorAll('.lang-en').forEach(el => el.style.display = '');
+document.querySelectorAll('.lang-cn').forEach(el => el.style.display = 'none');
 
 // — Helpers for localStorage per session —
 function getMySignups(date) {
