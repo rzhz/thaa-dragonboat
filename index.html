@@ -22,12 +22,33 @@
     .sessions { display: flex; gap: 20px; }
     .session { flex: 1 1 calc(50% - 20px); background: #fafafa; padding: 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .session h2 { margin-top: 0; }
+    .lang-toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background: #39aaff;
+  color: #fff;
+  border: none;
+  border-radius: 18px;
+  padding: 5px 18px;
+  font-size: 15px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(60,180,255,0.12);
+  cursor: pointer;
+  z-index: 1000;
+  transition: background 0.2s;
+}
+.lang-toggle-btn:hover {
+  background: #2688c8;
+}
+@media (max-width: 600px) {
+  .lang-toggle-btn {
+    top: 10px;
+    right:
   </style>
 </head>
 <body>
-  <button id="langSwitcher" style="position:absolute;top:24px;right:48px;z-index:1000;padding:8px 16px;">
-    English
-  </button>
+  <button class="lang-toggle-btn" id="langToggleBtn">EN</button>
   <div class="container">
     <h1><span class="lang-cn">清华龙舟队2025水上训练 THAA Boston Dragonboat Team Training Sign-Up</span>
     <span class="lang-en" style="display:none;">THAA Boston Dragonboat Team Training Sign-Up 2025</span></h1>
