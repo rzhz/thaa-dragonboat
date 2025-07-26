@@ -8,9 +8,9 @@ const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210';
 
 // Two sessions’ dates & times:
 const sessions = [
-  { key: '1', date: '20250725', time: '6:00-8:00pm', title: 'Friday Session', trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
+  { key: '1', date: '20250801', time: '6:00-8:00pm', title: 'Friday Session', trainingEnabled: false, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' },
   //{ key: '2', date: '20250605', time: '6:00-8:00pm', title: 'Thursday Session', trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
-  //{ key: '3', date: '20250601', time: '3:00-5:00pm', title: 'Sunday Session', trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
+  { key: '2', date: '20250803', time: '3:00-5:00pm', title: 'Sunday Session', trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
   //{ key: '4', date: '20250522', time: '6:00-8:00pm', title: 'Thursday Session', trainingEnabled: false, location: 'MIT Richard J. Resch Boathouse, 409 Memorial Dr, Cambridge, MA 02139' }
 ];
 
@@ -134,7 +134,7 @@ function updateDisplay(session, signups) {
   document.getElementById(`eventLocation${key}`).textContent = session.location;
 
   // Slots
-  const remaining = Math.max(0, maxSlots - signups.length);
+  const remaining = Math.max(0,  - signups.length);
   document.getElementById(`remainingSlots${key}`).textContent = remaining;
 
   if (session.trainingEnabled) {
@@ -177,7 +177,7 @@ function updateDisplay(session, signups) {
   });
 
   // Reset form fields & disable button if full
-  document.getElementById(`signUpBtn${key}`).disabled = (signups.length >= maxSlots);
+  document.getElementById(`signUpBtn${key}`).disabled = (signups.length >= );
   ['name','hand','training','waiverCheck'].forEach(id=>{
     const el = document.getElementById(id+key);
     if (!el) return;
