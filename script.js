@@ -16,7 +16,7 @@ const sessions = [
 
 // This assumes your Chinese elements have class "lang-cn" and English "lang-en"
 const btn = document.getElementById('langToggleBtn');
-let isChinese = true;
+let isChinese = false;
 btn.onclick = function() {
   isChinese = !isChinese;
   document.querySelectorAll('.lang-cn').forEach(el => el.style.display = isChinese ? '' : 'none');
