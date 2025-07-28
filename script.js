@@ -16,7 +16,7 @@ const sessions = [
 
 // This assumes your Chinese elements have class "lang-cn" and English "lang-en"
 const btn = document.getElementById('langToggleBtn');
-let isChinese = false;
+let isChinese = true;
 btn.onclick = function() {
   isChinese = !isChinese;
   document.querySelectorAll('.lang-cn').forEach(el => el.style.display = isChinese ? '' : 'none');
@@ -24,8 +24,8 @@ btn.onclick = function() {
   btn.textContent = isChinese ? 'EN' : '中'; // Show the opposite for toggling
 };
 // Initialize: show English, hide Chinese
-document.querySelectorAll('.lang-cn').forEach(el => el.style.display = 'none');
-document.querySelectorAll('.lang-en').forEach(el => el.style.display = '');
+document.querySelectorAll('.lang-cn').forEach(el => el.style.display = '');
+document.querySelectorAll('.lang-en').forEach(el => el.style.display = 'none');
 
 
 // — Helpers for localStorage per session —
