@@ -26,8 +26,6 @@ btn.onclick = function() {
 // Initialize: show English, hide Chinese
 document.querySelectorAll('.lang-cn').forEach(el => el.style.display = 'none');
 document.querySelectorAll('.lang-en').forEach(el => el.style.display = '');
-let isChinese = false;
-btn.textContent = '中'; // Button now shows "中" for switching to Chinese
 
 
 // — Helpers for localStorage per session —
