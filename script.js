@@ -134,7 +134,7 @@ function updateDisplay(session, signups) {
   document.getElementById(`eventLocation${key}`).textContent = session.location;
 
   // Slots
-  const remaining = Math.max(0,  - signups.length);
+  const remaining = Math.max(0, maxSlots - signups.length);
   document.getElementById(`remainingSlots${key}`).textContent = remaining;
 
   if (session.trainingEnabled) {
@@ -177,7 +177,7 @@ function updateDisplay(session, signups) {
   });
 
   // Reset form fields & disable button if full
-  document.getElementById(`signUpBtn${key}`).disabled = (signups.length >= );
+  document.getElementById(`signUpBtn${key}`).disabled = (signups.length >= maxSlots);
   ['name','hand','training','waiverCheck'].forEach(id=>{
     const el = document.getElementById(id+key);
     if (!el) return;
