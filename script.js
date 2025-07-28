@@ -2,15 +2,15 @@
 // Everytime the eventDate is updated, it creates a new sheet in the same Excel file.
 // —— Configuration & Event Details ——
 const apiUrl        = 'https://script.google.com/macros/s/AKfycbyLYPNnQbwUg7YPpJJgXG3Th2jFP2ocB_5Gekbe8aYEVwNSFls7cYEihC9jEk1_9trT/exec';
-const maxSlots      = 40;
+//const maxSlots      = 40;
 const trainingQuota = 8;
 const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210';
 
 // Two sessions’ dates & times:
 const sessions = [
-  { key: '1', date: '20250801', time: '6:00-8:00pm', title: 'Friday Session', trainingEnabled: false, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' },
+  { key: '1', date: '20250801', time: '6:00-8:00pm', title: 'Friday Session', maxSlots: 20, trainingEnabled: false, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' },
   //{ key: '2', date: '20250605', time: '6:00-8:00pm', title: 'Thursday Session', trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
-  { key: '2', date: '20250803', time: '3:00-5:00pm', title: 'Sunday Session', trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
+  { key: '2', date: '20250803', time: '3:00-5:00pm', title: 'Sunday Session', maxSlots: 40, trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
   //{ key: '4', date: '20250522', time: '6:00-8:00pm', title: 'Thursday Session', trainingEnabled: false, location: 'MIT Richard J. Resch Boathouse, 409 Memorial Dr, Cambridge, MA 02139' }
 ];
 
@@ -134,7 +134,7 @@ function updateDisplay(session, signups) {
   document.getElementById(`eventLocation${key}`).textContent = session.location;
 
   // Slots
-  const remaining = Math.max(0, maxSlots - signups.length);
+  const remaining = Math.max(0, session.maxSlots - signups.length);
   document.getElementById(`remainingSlots${key}`).textContent = remaining;
 
   if (session.trainingEnabled) {
@@ -177,7 +177,7 @@ function updateDisplay(session, signups) {
   });
 
   // Reset form fields & disable button if full
-  document.getElementById(`signUpBtn${key}`).disabled = (signups.length >= maxSlots);
+  document.getElementById(`signUpBtn${key}`).disabled = (signups.length >= session.maxSlots);
   ['name','hand','training','waiverCheck'].forEach(id=>{
     const el = document.getElementById(id+key);
     if (!el) return;
