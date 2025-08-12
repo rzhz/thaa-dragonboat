@@ -8,9 +8,9 @@ const eventLocation = 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210';
 
 // Two sessions’ dates & times:
 const sessions = [
-  { key: '1', date: '20250808', time: '6:00-8:00pm', title: 'Friday Session', maxSlots: 25, trainingEnabled: false, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' },
+  { key: '1', date: '20250815', time: '6:00-8:00pm', title: 'Friday Session', maxSlots: 20, trainingEnabled: false, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' },
   //{ key: '2', date: '20250605', time: '6:00-8:00pm', title: 'Thursday Session', trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
-  { key: '2', date: '20250810', time: '3:00-5:00pm', title: 'Sunday Session', maxSlots: 20, trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
+  { key: '2', date: '20250817', time: '3:00-5:00pm', title: 'Sunday Session', maxSlots: 40, trainingEnabled: true, location: 'Fort Point Pier, 21 Wormwood St #215, Boston, MA 02210' }//,
   //{ key: '4', date: '20250522', time: '6:00-8:00pm', title: 'Thursday Session', trainingEnabled: false, location: 'MIT Richard J. Resch Boathouse, 409 Memorial Dr, Cambridge, MA 02139' }
 ];
 
